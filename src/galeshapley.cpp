@@ -1,28 +1,24 @@
 #include <iostream>
-#include <list>
-#include <string>
 #include <vector>
+#include <queue>
 #include "galeshapley.h"
-#include "person.h"
 
-// loop through each  person and display their result vector
-void initialState(std::vector<Person*> group){
+
+void initialState(const std::vector<Person*> group){
   int n = group.size();
-  
-  for (int i = 0; i < n; i++){ // for each person
+  for (int i = 0; i < n; i++){ // for each person in group
     Person *temp = group[i];
-      
     std::cout << temp->name << "'s ranking: ";
+
     for (int k = 0; k < n; k++){
       std::cout << k+1 << ": " << temp->preferences[k]->name << ", ";
     }
+
     std::cout << std::endl;
   }
-  
 }
 
-
-void printResults(std::vector<Person*> group){
+void printResults(const std::vector<Person*> group){
   int n = group.size();
   for (int i = 0 ; i < n; i++){
     Person *temp = group[i];
@@ -31,9 +27,6 @@ void printResults(std::vector<Person*> group){
   }
 }
 
-// input: two people.
-// process: calculates if the person B (female) prefers person A (male) over their current partner
-// output: the rejected person from the proposal
 Person* propose(Person* A, Person* B){
   std::cout << A->name << " proposes to " << B->name;
   // if B is unmatched, it's an automatic yes, also if B prefers the person A
@@ -55,23 +48,16 @@ Person* propose(Person* A, Person* B){
   }
 }
 
-
-void GaleShapley(std::vector<std::vector<Person*>> people) {    
-  std::cout << "------------------------------------" << std::endl;
-  std::cout << "Initial State:" << std::endl;
-  initialState(people[0]);
-  std::cout << std::endl;
-  initialState(people[1]);
-  
+void galeShapley(std::vector<std::vector<Person*>> people) {      
   std::queue<Person *> queue; // list of free people
   for (Person* person : people[0]){
     queue.emplace(person);
   } // each person from A proposes to their first option, WHOM they haven't propsed to yet.
 
-  std::cout << "------------------------------------" << std::endl;
-  std::cout << "Simulation:" << std::endl;
-  
+  int i = 1;  
   while (!queue.empty()){
+    std::cout << i++ << ": ";
+      
     Person *proposer = queue.front(); // take the first person from the queue
     queue.pop();
 
@@ -86,18 +72,4 @@ void GaleShapley(std::vector<std::vector<Person*>> people) {
       queue.emplace(rejected); // add them back to the queue
     } 
   }
-  std::cout << "------------------------------------" << std::endl;
-  std::cout << "Results:" << std::endl;
-
-  printResults(people[0]);
-  
-  for (auto& group : people){
-    for (Person *p : group){
-      delete p; // dealloc from heap
-    }
-  }
 }
-
-
-
-

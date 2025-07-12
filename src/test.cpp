@@ -1,37 +1,26 @@
 #include "test.h"
 #include "galeshapley.h"
-#include "person.h"
-#include <string>
 #include <iostream>
 #include <unordered_set>
 #include <cstdlib>
 #include <ctime>
 
-// takes two arrays, p and q
-// for each person in p, it will assign n random rankings of people in q
 void assignRanking(std::vector<Person*> p, std::vector<Person*> q){
-  // For each person in p, choose a random person in q
   int n = p.size();
   
   for (Person* person : p){
     std::unordered_set<int> chosen;
-    // choose a random person, then rank them in 1, 2, 3, etc
     for (int i = 1; i <= n; i++){
-      int choice = rand() % n; // choice is between 0 and 7
-      while (chosen.find(choice) != chosen.end()){ // if you've already ranked, then find a new person
-	choice = rand() % n;
+      int choice = rand() % n; // choice of person is between 0 and n-1
+      while (chosen.find(choice) != chosen.end()){ // if you've already ranked this person, then find a new person
+	      choice = rand() % n;
       }
-      person->ranking[q[choice]] = i; // males[person *] = 1,2,..,8
+      person->ranking[q[choice]] = i; // person's ranking of q[choice] = i
       chosen.insert(choice);
     }
   }
 }
 
-
-// takes no input
-// dynamically creates a people structs, then puts them into an array
-// and returns a 2D array where arr[0] = proposers and arr[1] = proposees
-// returns the 2D array
 std::vector<std::vector<Person*>> initializePeople() {
   std::vector<Person*> males;
   std::vector<Person*> females;
@@ -98,7 +87,7 @@ std::vector<std::vector<Person*>> initializePeople() {
       person->preferences.resize(10);
       person->preferences[rank.second-1] = rank.first; // (ranking : person) tuple
     }
-  }  
+  }
 
   // expected: (alice, bob, ...) (jane, mark, ...)
   std::vector<std::vector<Person*>> people = {males, females};  
@@ -107,11 +96,26 @@ std::vector<std::vector<Person*>> initializePeople() {
 
 
 int main(void){
+  srand(time(0)); // random seed
 
-  srand(time(0));
   std::vector<std::vector<Person*>> people = initializePeople();
-
-  GaleShapley(people);
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << "Initial State:" << std::endl;
+  initialState(people[0]);
+  std::cout << std::endl;
+  initialState(people[1]);
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << "Simulation:" << std::endl;
+  galeShapley(people);
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << "Results:" << std::endl;
+  printResults(people[0]);
+  
+  for (auto& group : people){
+    for (Person *p : group){
+      delete p; // dealloc from heap
+    }
+  }
 
   return 0;
 }
